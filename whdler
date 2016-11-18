@@ -1,4 +1,14 @@
 MAINLINK=$1
+if [ "$MAINLINK" = "" ]
+then
+	echo "Wallhaven downloader"
+	echo "Go to wallhaven.cc and search what you like, copy the url and use this command to download all wallpapers in the search result:"
+	echo 'whdler "copied url"'
+	echo "Example:"
+	echo 'whdler "https://alpha.wallhaven.cc/search?q=linux&categories=101&purity=100&sorting=relevance&order=desc"'
+	echo "Wanna talk to me? I am here hamedsepehry[at]yahoo[dot]com"
+	exit
+fi
 MAINLINK="$(echo $MAINLINK | sed -r 's/&sorting.+//g')" #remove sorting from url
 MAINLINK="$MAINLINK&sorting=date_added&order=asc" #change sorting to added date ascending to make sure all pic will be downloaded
 TOTALPAGES="$(curl -L "$MAINLINK" | grep -o -P "thumb-listing-page-num.+?h2" | sed -r 's/^.{35}//' | sed -r 's/.{4}$//')" #number of all pages in search result
