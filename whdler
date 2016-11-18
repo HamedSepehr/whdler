@@ -1,0 +1,23 @@
+MAINLINK=$1
+MAINLINK="$(echo $MAINLINK | sed -r 's/&sorting.+//g')" #remove sorting from url
+MAINLINK="$MAINLINK&sorting=date_added&order=asc" #change sorting to added date ascending to make sure all pic will be downloaded
+TOTALPAGES="$(curl -L "$MAINLINK" | grep -o -P "thumb-listing-page-num.+?h2" | sed -r 's/^.{35}//' | sed -r 's/.{4}$//')" #number of all pages in search result
+function dlpic #extract pic url from its page and dl it
+{
+	PICPAGEID=$1
+	LINK="$(curl -L "https://alpha.wallhaven.cc/wallpaper/$PICPAGEID" | grep -o -P "(wallpapers.wallhaven.cc/wallpapers/full/wallhaven).+?alt"  | tail -1 | sed -r 's/.{5}$//')"
+	LINK="http://$LINK"
+	wget "$LINK"
+}
+function piclinks #extract pic page link from search page
+{
+	PAGELINK=$1
+	for j in $(curl -L "$PAGELINK" | grep -o -P "small\/th.+?\." | sed -r 's/^.{9}//' | sed -r 's/.$//')
+	do
+		dlpic $j
+	done
+}
+for (( i=1 ; i<=$TOTALPAGES ; i++ ))
+do 
+	piclinks "$MAINLINK&page=$i" 	
+done
